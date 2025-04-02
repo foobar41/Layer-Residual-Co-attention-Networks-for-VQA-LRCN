@@ -44,5 +44,3 @@ CLEVR	70,000	15,000	15,000	18GB	700,000 |
   2.	Astha Rastogi: Handles dataset preprocessing, including data augmentation and splitting. Will be responsible for evaluating the model using VQA and CLEVR datasets.
   3.	Chaitanya Chakka: Implement the training pipeline, including setting up the model, training procedures.
   4.	Satya Akhil Galla: Model hyperparameter tuning and model inference.
-
-![image](https://github.com/user-attachments/assets/25a3b63d-9e64-4478-9ce5-e10863fd5c2b)
