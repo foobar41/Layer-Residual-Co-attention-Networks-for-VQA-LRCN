@@ -27,17 +27,11 @@ We will use two datasets:
   1. VQA v2 Dataset
   2. CLEVR Dataset
 
-Dataset Statistics Table:
-Dataset	Train Images	Validation images	Test Images	Disk Space	Training  
-Questions | Answers	Validation Questions | Answers	Test Questions 
-VQA v2	204,721	40,504	81,434	30GB	443,757 |
-4,437,570   	214,354 |
-2,143,540	447,793 |
-4,477,930
-CLEVR	70,000	15,000	15,000	18GB	700,000 | 
-700,000  	150,000  |
-150,000	150,000 |
-150,000
+## Dataset Statistics Table:
+| Dataset	| Train Images | Validation images | Test Images | Disk Space | Training  Questions, Answers | Validation Questions, Answers | Test Questions |
+|---------|--------------|-------------------|-------------|------------|-------------------------------|------------------------------|-----------------|
+| VQA v2 | 204,721 | 40,504 | 81,434 | 30GB | 443,757 , 4,437,570 | 214,354 , 2,143,540 | 447,793 , 4,477,930 |
+| CLEVR | 70,000 | 15,000 | 15,000 | 18GB | 700,000, 700,000 | 150,000  , 150,000	| 150,000 , 150,000 | 
 
 # 6. Contributions by Team Members
   1.	Gagan Singhal: Responsible for overseeing the theoretical aspects of the LRM and model architecture modifications. Will implement the encoder-decoder architecture and integrate the LRM.
