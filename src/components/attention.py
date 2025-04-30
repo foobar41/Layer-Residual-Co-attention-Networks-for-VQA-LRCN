@@ -29,7 +29,7 @@ class SelfAttention(nn.Module):
     def forward(
             self,
             x: torch.Tensor,
-            prev_sa_output: torch.Tensor
+            prev_sa_output: torch.Tensor = None
     ):
         """
         Args:
@@ -39,7 +39,10 @@ class SelfAttention(nn.Module):
             The output tensor of the self attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
         mha_output = self.mha(query=x, key=x, value=x, need_weights=False)
-        added_mha_output = mha_output + prev_sa_output # Layer Residual Mechanism - Adding previous layer output
+        if prev_sa_output is not None:
+            added_mha_output = mha_output + prev_sa_output # Layer Residual Mechanism - Adding previous layer output
+        else:
+            added_mha_output = mha_output
         norm_mha_output = self.mha_norm(added_mha_output) # First Layer Normalization
         ff_output = self.ff(norm_mha_output)
         added_ff_output = ff_output + norm_mha_output # Intermiediate skip connection
@@ -76,7 +79,7 @@ class GuidedAttention(nn.Module):
             self,
             q: torch.Tensor,
             k: torch.Tensor,
-            prev_ga_output: torch.Tensor=None
+            prev_ga_output: torch.Tensor = None
     ):
         """
         Args:
@@ -87,7 +90,10 @@ class GuidedAttention(nn.Module):
             The output tensor of the guided attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
         mha_output = self.mha(query=q, key=k, value=k, need_weights=False)
-        added_mha_output = mha_output + prev_ga_output # Layer Residual Mechanism - Adding previous layer output
+        if prev_ga_output is not None:
+            added_mha_output = mha_output + prev_ga_output # Layer Residual Mechanism - Adding previous layer output
+        else:
+            added_mha_output = mha_output
         norm_mha_output = self.mha_norm(added_mha_output) # First Layer Normalization
         ff_output = self.ff(norm_mha_output)
         added_ff_output = ff_output + norm_mha_output # Intermiediate skip connection
