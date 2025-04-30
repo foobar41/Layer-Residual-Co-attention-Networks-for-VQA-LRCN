@@ -1,1 +1,3 @@
 Dropout might be missing in SelfAttention and GuidedAttention
+
+Not sure about the dimension sizes for the multimodal fusion linear layers, or tbh dimension sizes for any layers
