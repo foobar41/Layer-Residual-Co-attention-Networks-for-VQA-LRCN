@@ -45,12 +45,12 @@ class CoStackingLRCN(nn.Module):
         self.num_layers = num_layers
     
     def forward(self, img_features: torch.Tensor,
-            question_features: torch.Tensor,
+            text_features: torch.Tensor,
             output_hidden_states: bool=False)-> dict:
         """
         Args:
             img_features (torch.Tensor): Visual features X of shape (batch_size, num_regions, hidden_dim)
-            question_features (torch.Tensor): Question features Y of shape (batch_size, seq_len, hidden_dim)
+            text_features (torch.Tensor): Question features Y of shape (batch_size, seq_len, hidden_dim)
             output_hidden_states (bool): Store hidden states or not
             
         Returns:
@@ -61,10 +61,10 @@ class CoStackingLRCN(nn.Module):
         # Following paper notation: X^(0) = X, Y^(0) = Y
         # For first layer: PrevReX^(0) = X, PrevReY^(0) = Y
         prev_img_sa_output = img_features
-        prev_q_sa_output = question_features
+        prev_q_sa_output = text_features
 
         current_img = img_features
-        current_q = question_features
+        current_q = text_features
 
         ## Storing hidden states
         question_hidden_states = [current_q]
