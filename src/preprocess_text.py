@@ -3,11 +3,7 @@ import os
 from preprocessing.text_feature_extraction import load_glove_embeddings, build_vocab_and_answers, build_embedding_matrix
 import json
 import argparse
-
-# Macros
-WORD2IDX = "word2idx.npy"
-ANSWER2IDX = "answer2idx.npy"
-EMBEDDING_MATRIX = "glove_embedding_matrix.npy"
+from components.constants import WORD2IDX, ANSWER2IDX, EMBEDDING_MATRIX
 
 
 def preprocess_text_build_vocab(glove_path, text_feature_output_dir, questions_path, annontations_path):
@@ -116,6 +112,8 @@ if __name__=="__main__":
         args.glove_path,
         args.output_dir
     )
+
+    print("Preprocessing completed!")
 
 ## FILE PATHS
 
