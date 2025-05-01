@@ -1,5 +1,4 @@
 ## Need to run this file only once
-
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -80,27 +79,3 @@ class ImageFeatureExtractor:
                 np.save(os.path.join(output_dir, f'{base_name}.npy'), features)
             except Exception as e:
                 print(f'Error processing {filename}: {str(e)}')
-
-if __name__=="__main__":
-    ## TODO: Modify paths to get appropriate image locations
-    """
-    Run this file only once if needed to get image features
-    image_dir: image directories containing the splits
-    feat_dir: where the features will be stored
-    splits: train, test, or val. (images will be extracted from image_dir[i]/split[i])
-    """
-    config = {
-        'image_dir': ['./data/VQAv2/images/train','./data/VQAv2/images', './data/VQAv2/images'],
-        'feat_dir': './data/VQAv2/images/img_features',
-        'splits': ['train2014', 'val2014', 'test2015']
-    }
-
-    extractor = ImageFeatureExtractor(config['feat_dir'])
-
-    for i, split in enumerate(config['splits']):
-        split_dir = os.path.join(config['image_dir'][i], split)
-        if os.path.exists(split_dir):
-            print(f'Extracting features from {split_dir}.')
-            extractor.process_directory(split_dir, split)
-        else:
-            print(f'{split_dir} path DOES NOT exist')
