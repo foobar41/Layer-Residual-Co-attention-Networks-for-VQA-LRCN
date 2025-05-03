@@ -7,6 +7,7 @@ from components.lrcn_enc_dec import EncoderDecoderLRCN
 from components.lrcn_pure_stacking import PureStackingLRCN
 from components.multimodal_fusion import MultimodalFusion
 import numpy as np
+from components.constants import EMBEDDING_MATRIX
 
 class LRCN(nn.Module):
     """
@@ -22,7 +23,8 @@ class LRCN(nn.Module):
             num_heads: int = 8,
             num_layers: int = 6,
             num_answers: int = 3129,
-            dropout_rate: float = 0.1
+            dropout_rate: float = 0.1,
+            embedding_matrix_path: str = f"./data/VQAv2/text_features/{EMBEDDING_MATRIX}"
     ):
 
         super(LRCN, self).__init__()
@@ -30,7 +32,7 @@ class LRCN(nn.Module):
         ## Remaining preprocessing
         ## Create Glove Embeddings (Paper says they should be trainable embeddings)
         # Create embedding matrix from GloVe
-        embedding_matrix = np.load("glove_embedding_matrix.npy")
+        embedding_matrix = np.load(embedding_matrix_path, allow_pickle=True)
 
         # Add embedding as first layer in model
         self.embed = nn.Embedding.from_pretrained(
@@ -126,16 +128,3 @@ class LRCN(nn.Module):
             outputs['hidden_states'] = feature_outputs['hidden_states']
         
         return outputs
-    
-def compute_loss(scores: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
-    """
-    Compute the BCE loss for answer prediction.
-    
-    Args:
-        scores: Predicted answer scores [batch_size, num_answers]
-        targets: Ground truth answers [batch_size, num_answers]
-        
-    Returns:
-        BCE loss
-    """
-    return nn.functional.binary_cross_entropy(scores, targets)
