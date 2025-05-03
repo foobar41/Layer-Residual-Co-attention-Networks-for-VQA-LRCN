@@ -10,7 +10,7 @@ import torch.nn.functional as F
 
 # Custom imports
 from components.constants import ANSWER2IDX, WORD2IDX, EMBEDDING_MATRIX
-from components.datasets import VQADataset
+from components.datasets import VQAv2Dataset
 from components.lrcn_scheduler import LRCNCustomScheduler
 from model import LRCN
 
@@ -74,7 +74,7 @@ def train(args, logger):
 
     # Initialize the dataset
     logger.debug(f"Loading training dataset from {args.train_questions_path}, {args.train_annotations_path} and {args.train_image_features_dir}")
-    train_dataset = VQADataset(
+    train_dataset = VQAv2Dataset(
         questions_path=args.train_questions_path,
         annotations_path=args.train_annotations_path,
         word2idx=word2idx,
@@ -83,7 +83,7 @@ def train(args, logger):
     )
 
     logger.debug(f"Loading validation dataset from {args.val_questions_path}, {args.val_annotations_path} and {args.val_image_features_dir}")
-    val_dataset = VQADataset(
+    val_dataset = VQAv2Dataset(
         questions_path=args.val_questions_path,
         annotations_path=args.val_annotations_path,
         word2idx=word2idx,
@@ -131,10 +131,17 @@ def train(args, logger):
     logger.info(f"[Training Info] Training Dataset Size: {len(train_dataset)}")
     logger.info(f"[Training Info] Validation Dataset Size: {len(val_dataset)}")
 
+    logger.debug(f"Creating DataLoader for training and validation datasets")
     train_loader = DataLoader(
         train_dataset,
         batch_size=args.batch_size,
         shuffle=True,
+    )
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args.batch_size,
+        shuffle=False,
     )
 
     logger.info(f"Training started...")
@@ -177,11 +184,6 @@ def train(args, logger):
         # Validation step
         if (epoch + 1) % args.validate_every == 0:
             model.eval()
-            val_loader = DataLoader(
-                val_dataset,
-                batch_size=args.batch_size,
-                shuffle=False,
-            )
             val_loss = 0.0
             with torch.no_grad():
                 for val_batch in val_loader:
