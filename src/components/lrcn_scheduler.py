@@ -28,4 +28,4 @@ class LRCNCustomScheduler(optim.lr_scheduler._LRScheduler):
         if t in self.milestones:
             current_step_lr *= self.decay_factor
         
-        return [lr for _ in self.optimizer.param_groups]
+        return [current_step_lr for _ in self.optimizer.param_groups]
