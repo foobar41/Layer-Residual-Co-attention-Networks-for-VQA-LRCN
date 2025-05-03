@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--feature_output_dir",
         type=str,
-        required=True,
+        required=False,
         help="Directory to save the extracted features.",
         default="./data/VQAv2/images/image_features"
     )
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--image_dir",
         type=str,
-        required=True,
+        required=False,
         help="Directory containing the images.",
         default="./data/VQAv2/images/train"
     )
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--split",
         type=str,
-        required=True,
+        required=False,
         help="Split name of the dataset. ",
         default="train2014")
     

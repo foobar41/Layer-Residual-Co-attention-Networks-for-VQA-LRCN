@@ -68,7 +68,7 @@ if __name__=="__main__":
     parser.add_argument(
         "--glove_path",
         type=str,
-        required=True,
+        required=False,
         help="Path to the original GloVe embeddings file.",
         default="./data/glove.42B.300d.txt"
     )
@@ -76,7 +76,7 @@ if __name__=="__main__":
     parser.add_argument(
         "--output_dir",
         type=str,
-        required=True,
+        required=False,
         help="Directory to save the processed files. This includes the vocabularies and the embedding matrix.",
         default="./data/VQAv2/text_features/"
     )
@@ -84,17 +84,17 @@ if __name__=="__main__":
     parser.add_argument(
         "--questions_file_path",
         type=str,
-        required=True,
+        required=False,
         help="Path to questions data file. Should be a json file following the VQAv2 dataset format.",
-        default="v2_OpenEnded_mscoco_train2014_questions.json"
+        default="./data/VQAv2/questions/v2_OpenEnded_mscoco_train2014_questions.json"
     )
 
     parser.add_argument(
         "--annotations_file_path",
         type=str,
-        required=True,
+        required=False,
         help="Path to annotations data file. Should be a json file following the VQAv2 dataset format.",
-        default="v2_mscoco_train2014_annotations.json"
+        default="./data/VQAv2/annotations/v2_mscoco_train2014_annotations.json"
     )
 
 
@@ -104,7 +104,7 @@ if __name__=="__main__":
     preprocess_text_build_vocab(
         args.glove_path,
         args.output_dir,
-        args.question_file_path,
+        args.questions_file_path,
         args.annotations_file_path
     )
 
