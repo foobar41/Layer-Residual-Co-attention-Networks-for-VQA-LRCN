@@ -9,21 +9,15 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import traceback
 from tqdm import tqdm
-from torch.amp import autocast, GradScaler
-from contextlib import nullcontext
 
 # Custom imports
 from components.constants import ANSWER2IDX, WORD2IDX, EMBEDDING_MATRIX
 from components.datasets import VQAv2Dataset
 from components.lrcn_scheduler import LRCNCustomScheduler
-from components.dummy_scaler import DummyScaler
 from model import LRCN
 
 # Macros
 LOG_FILE = datetime.now().strftime("./logs/%Y-%m-%d_%H-%M-%S.log")
-
-# Global settings
-torch.backends.cudnn.benchmark = True
 
 # Setting logging configuration
 def setup_logging() -> logging.Logger:
@@ -154,10 +148,9 @@ def train(args, logger):
         shuffle=False,
         pin_memory=True,
     )
-    is_cuda = (device.type == "cuda")
-    scaler = GradScaler() if is_cuda else DummyScaler()
 
     logger.info(f"Training started...")
+    step_no = 1
     for epoch in range(args.num_epochs):
         model.train()
         for batch in tqdm(train_loader, total=len(train_loader)):
@@ -169,26 +162,28 @@ def train(args, logger):
             img_features = img_features.to(device)
             question_vector = question_vector.to(device)
             answer_vector = answer_vector.to(device)
+            
+            # Forward pass
+            outputs = model(img_features, question_vector)
+            
+            # Compute the loss
+            loss = criterion(outputs['scores'], answer_vector)
 
-            # Using autocast to speed up training
-            with autocast(device_type=is_cuda, enabled=use_amp):
-                # Forward pass
-                outputs = model(img_features, question_vector)
-                # Compute the loss
-                loss = criterion(outputs['scores'], answer_vector)
+            loss.backward()
+            optimizer.step()
 
+            # Log step loss
+            if (step_no) % args.log_every == 0:
+                ind_epoch = step_no / len(train_loader)
+                logger.info(f"Epoch [{ind_epoch:.2f}/{args.num_epochs}], Training Loss: {loss.item():.4f}")
+            step_no += 1
 
-            # Backward pass and optimization
-            scaler.scale(loss).backward()
-            scaler.step(optimizer)
-            scaler.update()
 
         # Step the scheduler
         scheduler.step()
 
         # Log the training loss 
-        if (epoch + 1) % args.log_every == 0:
-            logger.info(f"Epoch [{epoch+1}/{args.num_epochs}], Training Loss: {loss.item():.4f}")
+        logger.info(f"Epoch [{epoch+1}/{args.num_epochs}], Training Loss: {loss.item():.4f}")
 
         # Save the model checkpoint
         if (epoch + 1) % args.ckpt_every == 0:
@@ -343,8 +338,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--log_every",
         type=int,
-        default=1,
-        help="Log every n epochs"
+        default=500,
+        help="Log every n steps"
     )
 
     parser.add_argument(
