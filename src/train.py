@@ -152,9 +152,10 @@ def train(args, logger):
         val_dataset,
         batch_size=args.batch_size,
         shuffle=False,
+        pin_memory=True,
     )
-
-    scaler = GradScaler() if device=='cuda' else DummyScaler()
+    is_cuda = (device.type == "cuda")
+    scaler = GradScaler() if is_cuda else DummyScaler()
 
     logger.info(f"Training started...")
     for epoch in range(args.num_epochs):
@@ -169,9 +170,8 @@ def train(args, logger):
             question_vector = question_vector.to(device)
             answer_vector = answer_vector.to(device)
 
-
-            use_amp = device == 'cuda'
-            with autocast(device_type="cuda", enabled=use_amp):
+            # Using autocast to speed up training
+            with autocast(device_type=is_cuda, enabled=use_amp):
                 # Forward pass
                 outputs = model(img_features, question_vector)
                 # Compute the loss
@@ -209,7 +209,7 @@ def train(args, logger):
                     answer_vector = answer_vector.to(device)
 
                     outputs = model(img_features, question_vector)
-                    loss = F.binary_cross_entropy(outputs, answer_vector)
+                    loss = F.binary_cross_entropy(outputs['scores'], answer_vector)
                     val_loss += loss.item()
 
             val_loss /= len(val_loader)
