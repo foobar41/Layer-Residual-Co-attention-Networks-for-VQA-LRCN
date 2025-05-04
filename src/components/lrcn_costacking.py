@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from attention import SelfAttention, GuidedAttention
+from components.attention import SelfAttention, GuidedAttention
 
 class CoStackingLRCN(nn.Module):
     """
@@ -19,6 +19,7 @@ class CoStackingLRCN(nn.Module):
             hidden_dim: int=64,
             num_layers: int=6,
     ):
+        super(CoStackingLRCN, self).__init__()
         ## Self Attention blocks for image features
         self.img_sa_layers = nn.ModuleList([
             SelfAttention(num_heads=num_heads, hidden_dim=hidden_dim) for _ in range(num_layers)

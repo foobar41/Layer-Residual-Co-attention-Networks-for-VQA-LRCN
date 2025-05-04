@@ -173,3 +173,13 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 .gitattributes
+
+# Ignore SCC and run related files
+
+**/jobs/
+
+**/.outputs
+
+**/data/
+
+*.npy

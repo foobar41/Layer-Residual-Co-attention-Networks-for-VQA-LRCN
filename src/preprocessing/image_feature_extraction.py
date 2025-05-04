@@ -14,6 +14,7 @@ class ImageFeatureExtractor:
     def __init__(self, feat_dir):
         self.feat_dir = feat_dir
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(f"Using device {self.device}")
 
         ## Create resnet152 backbone without classification layers
         resnet = models.resnet152(pretrained=True)

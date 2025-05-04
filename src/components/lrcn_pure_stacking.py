@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from attention import SelfAttention, GuidedAttention
+from components.attention import SelfAttention, GuidedAttention
 
 class PureStackingLRCN(nn.Module):
     """

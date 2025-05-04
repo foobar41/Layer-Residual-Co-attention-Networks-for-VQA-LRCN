@@ -38,7 +38,7 @@ class SelfAttention(nn.Module):
         Returns:
             The output tensor of the self attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
-        mha_output = self.mha(query=x, key=x, value=x, need_weights=False)
+        mha_output, _ = self.mha(query=x, key=x, value=x, need_weights=False)
         if prev_sa_output is not None:
             added_mha_output = mha_output + prev_sa_output # Layer Residual Mechanism - Adding previous layer output
         else:
@@ -61,7 +61,7 @@ class GuidedAttention(nn.Module):
             hidden_dim: int=64,
 
     ):
-        super(SelfAttention, self).__init__()
+        super(GuidedAttention, self).__init__()
         self.mha = nn.MultiheadAttention(
             embed_dim=hidden_dim,
             num_heads=num_heads,
@@ -89,7 +89,7 @@ class GuidedAttention(nn.Module):
         Returns:
             The output tensor of the guided attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
-        mha_output = self.mha(query=q, key=k, value=k, need_weights=False)
+        mha_output, _ = self.mha(query=q, key=k, value=k, need_weights=False)
         if prev_ga_output is not None:
             added_mha_output = mha_output + prev_ga_output # Layer Residual Mechanism - Adding previous layer output
         else:

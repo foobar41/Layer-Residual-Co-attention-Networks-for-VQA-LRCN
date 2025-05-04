@@ -76,6 +76,7 @@ class LRCN(nn.Module):
         )
         
         self.architecture_type = architecture_type
+        self.hidden_dim = hidden_dim
 
     def forward(
             self,
@@ -99,13 +100,16 @@ class LRCN(nn.Module):
         """
         ## Remaining preprocessing IMAGES
         ## Downsample and project
+        batch_size = img_features.shape[0]
         img_features = self.downsample(img_features)
 
         # Permute to [1, 8, 8, 2048] for linear layer
         img_features = img_features.permute(0, 2, 3, 1).contiguous()
+
+        # Flatten the grid features before FC layer
+        img_features = img_features.view(batch_size, -1, 2048) # TODO: Explore if any better way instead of hard coding
         # Apply linear projection [1, 8, 8, 512]
         img_features = self.projection(img_features)
-        img_features = img_features.view(1, -1, 512)
 
         ## Remaining preprocessing TEXT
         text_features = self.embed(text_features)  # [batch, 14, 300]

@@ -1,4 +1,5 @@
-from multimodal_fusion_components import ModalityFusion, AttentionPooling, AnswerClassifier
+import torch.nn as nn
+from components.multimodal_fusion_components import ModalityFusion, AttentionPooling, AnswerClassifier
 
 class MultimodalFusion(nn.Module):
     """

@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-from attention import SelfAttention, GuidedAttention
+from components.attention import SelfAttention, GuidedAttention
 
 class EncoderDecoderLRCN(nn.Module):
     """
@@ -28,9 +28,9 @@ class EncoderDecoderLRCN(nn.Module):
     
     def forward(
             self,
-            image_features: torch.Tensor,
+            img_features: torch.Tensor,
             text_features: torch.Tensor,
-            output_hiddden_states: bool=False
+            output_hidden_states: bool=False
     ):
         """
 
@@ -42,26 +42,26 @@ class EncoderDecoderLRCN(nn.Module):
             text_features_output = sa_layer(text_features_output)
             text_hidden_states.append(text_features_output)
         # Decode image features with encoded text features as guidance (Decoder)
-        PrevRe = image_features
-        image_features_output = image_features
-        image_hidden_states = [image_features_output]
+        PrevRe = img_features
+        img_features_output = img_features
+        image_hidden_states = [img_features_output]
         for sa_layer, ga_layer in zip(self.image_decoder_sa, self.image_decoder_ga):
             sa_output = sa_layer(
-                x=image_features_output,
+                x=img_features_output,
                 prev_sa_output=PrevRe
             )
             ga_output = ga_layer(
                 q=sa_output,
                 k=text_features_output
             )
-            image_features_output = ga_output
-            image_hidden_states.append(image_features_output)
+            img_features_output = ga_output
+            image_hidden_states.append(img_features_output)
             PrevRe = sa_output
         outputs = {
-            'image_features': image_features_output,
+            'image_features': img_features_output,
             'text_features': text_features_output
         }
-        if output_hiddden_states:
+        if output_hidden_states:
             outputs['hidden_states'] = {
                 'image_hidden_states': image_hidden_states,
                 'text_hidden_states': text_hidden_states

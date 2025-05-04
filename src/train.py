@@ -7,6 +7,8 @@ import numpy as np
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
+import traceback
+from tqdm import tqdm
 
 # Custom imports
 from components.constants import ANSWER2IDX, WORD2IDX, EMBEDDING_MATRIX
@@ -147,7 +149,7 @@ def train(args, logger):
     logger.info(f"Training started...")
     for epoch in range(args.num_epochs):
         model.train()
-        for batch in train_loader:
+        for batch in tqdm(train_loader, total=len(train_loader)):
             # Get the data
             img_features, question_vector, answer_vector = batch
 
@@ -159,8 +161,10 @@ def train(args, logger):
             # Forward pass
             outputs = model(img_features, question_vector)
 
+            # Extract scores from output
+            scores = outputs['scores']
             # Compute the loss
-            loss = criterion(outputs, answer_vector)
+            loss = criterion(scores, answer_vector)
 
             # Backward pass and optimization
             optimizer.zero_grad()
@@ -206,7 +210,6 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--use_cuda",
-        type=bool,
         action="store_true",
         help="Use CUDA for training if available",
         default=False
@@ -344,9 +347,15 @@ if __name__ == "__main__":
     logger = setup_logging()
     logger.info(f"Logging started. All logs for this run will be saved at {LOG_FILE}")
 
-    exit_code = train(args, logger)
+    try: 
+        exit_code = train(args, logger)
+    except Exception as e:
+        logger.error(f"Unexpected exception occured: {e}")
+        error_msg = traceback.format_exc()
+        logger.error(error_msg)
+        exit_code = 1
     if exit_code != 0:
-        logger.error(f"Training failed. Please chekc the logs for more details.")
+        logger.error(f"Training failed. Please check the logs for more details.")
         exit(exit_code)
     else:
         logger.info("Training completed successfully!")
