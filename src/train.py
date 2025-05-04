@@ -9,15 +9,21 @@ from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import traceback
 from tqdm import tqdm
+from torch.amp import autocast, GradScaler
+from contextlib import nullcontext
 
 # Custom imports
 from components.constants import ANSWER2IDX, WORD2IDX, EMBEDDING_MATRIX
 from components.datasets import VQAv2Dataset
 from components.lrcn_scheduler import LRCNCustomScheduler
+from components.dummy_scaler import DummyScaler
 from model import LRCN
 
 # Macros
 LOG_FILE = datetime.now().strftime("./logs/%Y-%m-%d_%H-%M-%S.log")
+
+# Global settings
+torch.backends.cudnn.benchmark = True
 
 # Setting logging configuration
 def setup_logging() -> logging.Logger:
@@ -138,6 +144,8 @@ def train(args, logger):
         train_dataset,
         batch_size=args.batch_size,
         shuffle=True,
+        pin_memory=True,
+        num_workers=os.cpu_count()//2
     )
 
     val_loader = DataLoader(
@@ -146,10 +154,13 @@ def train(args, logger):
         shuffle=False,
     )
 
+    scaler = GradScaler() if device=='cuda' else DummyScaler()
+
     logger.info(f"Training started...")
     for epoch in range(args.num_epochs):
         model.train()
         for batch in tqdm(train_loader, total=len(train_loader)):
+            optimizer.zero_grad()
             # Get the data
             img_features, question_vector, answer_vector = batch
 
@@ -158,18 +169,19 @@ def train(args, logger):
             question_vector = question_vector.to(device)
             answer_vector = answer_vector.to(device)
 
-            # Forward pass
-            outputs = model(img_features, question_vector)
 
-            # Extract scores from output
-            scores = outputs['scores']
-            # Compute the loss
-            loss = criterion(scores, answer_vector)
+            use_amp = device == 'cuda'
+            with autocast(device_type="cuda", enabled=use_amp):
+                # Forward pass
+                outputs = model(img_features, question_vector)
+                # Compute the loss
+                loss = criterion(outputs['scores'], answer_vector)
+
 
             # Backward pass and optimization
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
 
         # Step the scheduler
         scheduler.step()
