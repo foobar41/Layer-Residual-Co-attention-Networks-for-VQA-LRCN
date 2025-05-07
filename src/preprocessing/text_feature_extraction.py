@@ -13,7 +13,12 @@ def load_glove_embeddings(glove_path):
 def build_vocab_and_answers(train_questions, train_annotations, glove_dict, top_answers=3129):
     word_counts = {}
     for q in train_questions:
-        words = q['question'].lower().split()
+        words = q['question'].lower()
+        
+        for p in ['?', ',', ';', ':', '.', '!']:
+            words = words.replace(p, '')
+        words = words.split()
+        print(words)
         for w in words:
             if w in glove_dict:
                 word_counts[w] = word_counts.get(w,0) + 1
