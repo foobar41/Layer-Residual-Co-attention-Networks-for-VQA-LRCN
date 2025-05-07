@@ -147,6 +147,7 @@ def train(args, logger):
         batch_size=args.batch_size,
         shuffle=False,
         pin_memory=True,
+        num_workers=os.cpu_count()//2
     )
 
     logger.info(f"Training started...")
@@ -156,7 +157,7 @@ def train(args, logger):
         for batch in tqdm(train_loader, total=len(train_loader)):
             optimizer.zero_grad()
             # Get the data
-            img_features, question_vector, answer_vector = batch
+            img_features, question_vector, answer_vector, _ = batch
 
             # Move the data to the device
             img_features = img_features.to(device)
@@ -197,8 +198,8 @@ def train(args, logger):
             model.eval()
             val_loss = 0.0
             with torch.no_grad():
-                for val_batch in val_loader:
-                    img_features, question_vector, answer_vector = val_batch
+                for val_batch in tqdm(val_loader, total=len(val_loader)):
+                    img_features, question_vector, answer_vector, _ = val_batch
                     img_features = img_features.to(device)
                     question_vector = question_vector.to(device)
                     answer_vector = answer_vector.to(device)
