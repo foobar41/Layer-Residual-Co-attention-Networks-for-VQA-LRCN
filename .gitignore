@@ -183,3 +183,14 @@ cython_debug/
 **/data/
 
 *.npy
+
+# Ignore checkpoints
+
+**/*checkpoints*
+
+# Ignore plot files
+
+**/plots*
+
+# Ignore submission files
+**/Submission_json

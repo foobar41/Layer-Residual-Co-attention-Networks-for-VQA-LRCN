@@ -30,7 +30,8 @@ class EncoderDecoderLRCN(nn.Module):
             self,
             img_features: torch.Tensor,
             text_features: torch.Tensor,
-            output_hidden_states: bool=False
+            output_hidden_states: bool=False,
+            output_attn_weights: bool=False
     ):
         """
 
@@ -39,18 +40,18 @@ class EncoderDecoderLRCN(nn.Module):
         text_features_output = text_features
         text_hidden_states = [text_features_output]
         for sa_layer in self.text_encoder:
-            text_features_output = sa_layer(text_features_output)
+            text_features_output, q_attn_wts_out_sa = sa_layer(text_features_output)
             text_hidden_states.append(text_features_output)
         # Decode image features with encoded text features as guidance (Decoder)
         PrevRe = img_features
         img_features_output = img_features
         image_hidden_states = [img_features_output]
         for sa_layer, ga_layer in zip(self.image_decoder_sa, self.image_decoder_ga):
-            sa_output = sa_layer(
+            sa_output, img_attn_wts_out_sa = sa_layer(
                 x=img_features_output,
                 prev_sa_output=PrevRe
             )
-            ga_output = ga_layer(
+            ga_output, img_attn_wts_out_ga = ga_layer(
                 q=sa_output,
                 k=text_features_output
             )
@@ -65,5 +66,12 @@ class EncoderDecoderLRCN(nn.Module):
             outputs['hidden_states'] = {
                 'image_hidden_states': image_hidden_states,
                 'text_hidden_states': text_hidden_states
+            }
+        
+        if output_attn_weights:
+            outputs['attn_weights'] = {
+                'image_self': img_attn_wts_out_sa,
+                'image_guided': img_attn_wts_out_ga,
+                'text_self': q_attn_wts_out_sa,
             }
         return outputs

@@ -82,7 +82,8 @@ class LRCN(nn.Module):
             self,
             img_features: torch.Tensor,
             text_features: torch.Tensor,
-            output_hidden_states: bool = False
+            output_hidden_states: bool = False,
+            output_attn_weights: bool=False
         ):
         """
         Forward pass through the complete LRCN model.
@@ -116,7 +117,7 @@ class LRCN(nn.Module):
         text_features, _ = self.lstm(text_features) # Converts to [batch_size, seq_length, 512]
 
         ## Select architecture
-        feature_outputs = self.feature_extractor(img_features = img_features, text_features=text_features, output_hidden_states=output_hidden_states)
+        feature_outputs = self.feature_extractor(img_features = img_features, text_features=text_features, output_hidden_states=output_hidden_states, output_attn_weights=output_attn_weights)
 
         ## Extract processed features
         visual_features = feature_outputs['image_features']
@@ -127,8 +128,10 @@ class LRCN(nn.Module):
 
         outputs = {'scores': scores}
 
-        # Include hidden states if requested
+        # Include hidden states and attention weights if requested
         if output_hidden_states and 'hidden_states' in feature_outputs:
             outputs['hidden_states'] = feature_outputs['hidden_states']
-        
+        if output_attn_weights and 'attn_weights' in feature_outputs:
+            outputs['attn_weights'] = feature_outputs['attn_weights']
+
         return outputs

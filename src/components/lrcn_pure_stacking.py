@@ -38,7 +38,8 @@ class PureStackingLRCN(nn.Module):
     def forward(self,
             img_features: torch.Tensor,
             text_features: torch.Tensor,
-            output_hidden_states: bool=False)-> dict:
+            output_hidden_states: bool=False,
+            output_attn_weights: bool=False)-> dict:
         """
         Args:
             img_features (torch.Tensor): Visual features X of shape (batch_size, num_regions, hidden_dim)
@@ -62,16 +63,16 @@ class PureStackingLRCN(nn.Module):
 
         for layer_idx in range(self.num_layers):
             ## 1. SA for img with layer residual connection
-            img_sa_output = self.img_sa_layers[layer_idx](
+            img_sa_output, img_attn_wts_out_sa = self.img_sa_layers[layer_idx](
                 x = current_img, 
                 prev_sa_output = prev_img_sa_output
             )
 
             ## 2. SA for question
-            q_sa_output = self.q_sa_layers[layer_idx](x = current_q)
+            q_sa_output, q_attn_wts_out_sa = self.q_sa_layers[layer_idx](x = current_q)
 
             ## 3. GA for img guided by question
-            img_ga_output = self.img_ga_layers[layer_idx](
+            img_ga_output, img_attn_wts_out_ga = self.img_ga_layers[layer_idx](
                 q = img_sa_output,
                 k = q_sa_output
             )
@@ -95,6 +96,13 @@ class PureStackingLRCN(nn.Module):
             outputs['hidden_states'] = {
                 'image_hidden_states': image_hidden_states,
                 'text_hidden_states': question_hidden_states
+            }
+        
+        if output_attn_weights:
+            outputs['attn_weights'] = {
+                'image_self': img_attn_wts_out_sa,
+                'image_guided': img_attn_wts_out_ga,
+                'text_self': q_attn_wts_out_sa,
             }
         return outputs
 

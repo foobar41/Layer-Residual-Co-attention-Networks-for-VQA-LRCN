@@ -47,7 +47,8 @@ class CoStackingLRCN(nn.Module):
     
     def forward(self, img_features: torch.Tensor,
             text_features: torch.Tensor,
-            output_hidden_states: bool=False)-> dict:
+            output_hidden_states: bool=False,
+            output_attn_weights: bool=False)-> dict:
         """
         Args:
             img_features (torch.Tensor): Visual features X of shape (batch_size, num_regions, hidden_dim)
@@ -74,25 +75,25 @@ class CoStackingLRCN(nn.Module):
         ## Process through L layers
         for layer_idx in range(self.num_layers):
             ## 1. Self Attention for IMAGE with layer residuals
-            img_sa_output = self.img_sa_layers[layer_idx](
+            img_sa_output, img_attn_wts_out_sa = self.img_sa_layers[layer_idx](
                 x = current_img,
                 prev_sa_output = prev_img_sa_output
             )
 
             ##2. Self Attention for QUESTION with layer residuals
-            q_sa_output = self.q_sa_layers[layer_idx](
+            q_sa_output, q_attn_wts_out_sa = self.q_sa_layers[layer_idx](
                 x = current_q,
                 prev_sa_output = prev_q_sa_output
             )
 
             ## 3. Guided Attention for QUESTION (guided by img SA output)
-            q_ga_output = self.q_ga_layers[layer_idx](
+            q_ga_output, q_attn_wts_out_ga = self.q_ga_layers[layer_idx](
                 q = q_sa_output,
                 k = img_sa_output
             )
 
             ## 4. Guided attention for IMAGE (guided by question)
-            img_ga_output = self.img_ga_layers[layer_idx](
+            img_ga_output, img_attn_wts_out_ga = self.img_ga_layers[layer_idx](
                 q = img_sa_output,
                 k = q_ga_output
             )
@@ -117,6 +118,14 @@ class CoStackingLRCN(nn.Module):
             outputs['hidden_states'] = {
                 'image_hidden_states': image_hidden_states,
                 'text_hidden_states': question_hidden_states
+            }
+
+        if output_attn_weights:
+            outputs['attn_weights'] = {
+                'image_self': img_attn_wts_out_sa,
+                'image_guided': img_attn_wts_out_ga,
+                'text_self': q_attn_wts_out_sa,
+                'text_guided': q_attn_wts_out_ga
             }
         return outputs
 

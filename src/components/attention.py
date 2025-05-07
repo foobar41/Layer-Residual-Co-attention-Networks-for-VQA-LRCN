@@ -38,7 +38,7 @@ class SelfAttention(nn.Module):
         Returns:
             The output tensor of the self attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
-        mha_output, _ = self.mha(query=x, key=x, value=x, need_weights=False)
+        mha_output, attn_wts = self.mha(query=x, key=x, value=x, need_weights=True)
         if prev_sa_output is not None:
             added_mha_output = mha_output + prev_sa_output # Layer Residual Mechanism - Adding previous layer output
         else:
@@ -47,7 +47,7 @@ class SelfAttention(nn.Module):
         ff_output = self.ff(norm_mha_output)
         added_ff_output = ff_output + norm_mha_output # Intermiediate skip connection
         norm_ff_output = self.ff_norm(added_ff_output) # Second Layer Normalization
-        return norm_ff_output
+        return norm_ff_output, attn_wts
 
 
 class GuidedAttention(nn.Module):
@@ -89,7 +89,7 @@ class GuidedAttention(nn.Module):
         Returns:
             The output tensor of the guided attention block of shape (batch_size, token_sequence_length, hidden_dim)
         """
-        mha_output, _ = self.mha(query=q, key=k, value=k, need_weights=False)
+        mha_output, attn_wts = self.mha(query=q, key=k, value=k, need_weights=True)
         if prev_ga_output is not None:
             added_mha_output = mha_output + prev_ga_output # Layer Residual Mechanism - Adding previous layer output
         else:
@@ -98,4 +98,4 @@ class GuidedAttention(nn.Module):
         ff_output = self.ff(norm_mha_output)
         added_ff_output = ff_output + norm_mha_output # Intermiediate skip connection
         norm_ff_output = self.ff_norm(added_ff_output) # Second Layer Normalization
-        return norm_ff_output
+        return norm_ff_output, attn_wts
