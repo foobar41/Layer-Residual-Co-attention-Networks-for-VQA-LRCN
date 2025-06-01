@@ -1,8 +1,6 @@
-# Vision-Language-For-The-Blind
-
 CS 585 Project Proposal - Team Catastrophe
 # 1. Description of the Problem and Proposed Solution
-Our team is implementing the LRCN: Layer-residual Co-Attention Networks for Visual Question Answering (VQA) paper.
+Our team is implementing the [LRCN: Layer-residual Co-Attention Networks for Visual Question Answering (VQA)](https://www.sciencedirect.com/science/article/abs/pii/S0957417424025259) paper.
   1. The primary problem is improving the performance of Visual Question Answering systems, which require deep understanding and interaction between visual content and textual information.
   2. VQA systems typically face challenges in integrating multimodal data, especially when the information transfer between the layers of deep models is inefficient.
   3. To overcome these challenges, the paper proposes implementing the Layer-Residual Mechanism (LRM), a plug-and-play solution that optimizes the multimodal feature transfer and stabilizes training in deeper layers.
@@ -15,7 +13,7 @@ The implementation will proceed in the following steps:
   3. Training and Evaluation: After modifying the architecture, we will train the model using standard hyperparameters and evaluate it on the datasets using standard VQA metrics.
 
 # 3. Relevant Papers and Links
-  1.	LRCN: Layer-residual Co-Attention Networks for Visual Question Answering. 
+  1.	[LRCN: Layer-residual Co-Attention Networks for Visual Question Answering](https://www.sciencedirect.com/science/article/abs/pii/S0957417424025259). 
   2.	CLEVR Dataset
   3.	VQA V2 Dataset
 
