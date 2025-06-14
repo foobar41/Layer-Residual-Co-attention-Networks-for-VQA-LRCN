@@ -36,3 +36,5 @@ We will use two datasets:
   2.	Astha Rastogi: Handles dataset preprocessing, including data augmentation and splitting. Will be responsible for evaluating the model using VQA and CLEVR datasets.
   3.	Chaitanya Chakka: Implement the training pipeline, including setting up the model, training procedures.
   4.	Satya Akhil Galla: Model hyperparameter tuning and model inference.
+
+## Please check [report.pdf](report.pdf) and [presentation.pdf](presentation.pdf) for further detailed analysis
